@@ -4,11 +4,11 @@ var expect = require('chai').expect;
 var utils = require('../lib/utils');
 var geofence = require('../lib/geofence');
 
-var randomPoint = function() { return [Math.random()*2000 - 1000, Math.random()*2000 - 1000]; };
-var randomPolygon = function() {
+var randomPoint = function(range) { return [Math.random()*range - range/2, Math.random()*range - range/2]; };
+var randomPolygon = function(range, percentageOfRange) {
     var polygon = [];
     while(polygon.length < 1000) {
-        polygon.push(randomPoint());
+        polygon.push(randomPoint(range * percentageOfRange));
     }
 
     return polygon;
@@ -16,11 +16,11 @@ var randomPolygon = function() {
 
 describe('Geofence.inside()', function() {
     it('should always equal utils.pointInPolygon', function() {
-        var polygon = randomPolygon();
+        var polygon = randomPolygon(2000, 0.1);
         var gf = new geofence(polygon);
         var point = null;
         for (var x = 0; x < 1000; x++) {
-            point = randomPoint();
+            point = randomPoint(2000);
             expect(gf.inside(point)).to.equal(utils.pointInPolygon(point, polygon));
         }
     });
@@ -68,7 +68,20 @@ describe('Geofence.inside()', function() {
             [42.02010937741473, -87.831029893714],
             [41.98719839843826, -87.83120155116194],
             [41.9948536336077, -87.86373138340423]
-        ].map(function(point) { return [point[0]*100/180, point[1]*100/90]; });
+        ];
+        var lats = polygon.map(function(point) { return point[0]; });
+        var lngs = polygon.map(function(point) { return point[1]; });
+        var minLat = Math.min.apply(null, lats);
+        var maxLat = Math.max.apply(null, lats);
+        var minLng = Math.min.apply(null, lngs);
+        var maxLng = Math.max.apply(null, lngs);
+
+        var randomPointCustom = function() {
+            return [
+                minLat + (maxLat - minLat)*Math.random(),
+                minLng + (maxLng - minLng)*Math.random()
+            ];
+        };
 
         var gf = new geofence(polygon);
         var point = null;
@@ -82,17 +95,16 @@ describe('Geofence.inside()', function() {
         };
 
         var gfTime = timeFunction(function() {
-            point = randomPoint();
+            point = randomPointCustom();
             gf.inside(point);
-            gf.inside(point);
-        }, 10000);
+        }, 1000000);
 
         var inTime = timeFunction(function() {
-            point = randomPoint();
-            // utils.pointInPolygon(point, polygon);
-            gf.inside(point);
-        }, 10000);
+            point = randomPointCustom();
+            utils.pointInPolygon(point, polygon);
+        }, 1000000);
 
+        console.log("gf: %dms, in: %dms", gfTime, inTime);
         expect(gfTime).to.be.below(inTime);
     });
 });
