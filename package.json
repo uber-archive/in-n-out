@@ -1,0 +1,22 @@
+{
+  "name": "in-n-out",
+  "version": "0.0.1",
+  "author": "Uber Dev<dev@uber.com>",
+  
+  "scripts": {
+    "test": "./test/tests.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:uber/in-n-out.git"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*"
+  },
+  "engine": {
+    "node": "0.8.x"
+  }
+}
