@@ -76,10 +76,13 @@ describe('Geofence.inside()', function() {
         var minLng = Math.min.apply(null, lngs);
         var maxLng = Math.max.apply(null, lngs);
 
-        var randomPointCustom = function() {
+        var latRange = maxLat - minLat;
+        var lngRange = maxLng - minLng;
+
+        var randomPointCustom = function(factor) {
             return [
-                minLat + (maxLat - minLat)*Math.random(),
-                minLng + (maxLng - minLng)*Math.random()
+                (minLat + maxLat)/2 - latRange*factor/2 + latRange*factor*Math.random(),
+                (minLng + maxLng)/2 - lngRange*factor/2 + lngRange*factor*Math.random()
             ];
         };
 
@@ -94,17 +97,20 @@ describe('Geofence.inside()', function() {
             return Date.now() - start;
         };
 
+        var iterations = 1000000;
+        // var iterations = 10;
+
         var gfTime = timeFunction(function() {
-            point = randomPointCustom();
+            point = randomPointCustom(100);
             gf.inside(point);
-        }, 1000000);
+        }, iterations);
 
         var inTime = timeFunction(function() {
-            point = randomPointCustom();
+            point = randomPointCustom(100);
             utils.pointInPolygon(point, polygon);
-        }, 1000000);
+        }, iterations);
 
-        console.log("gf: %dms, in: %dms", gfTime, inTime);
+        console.log("gf: %dms, in: %dms (points: %d, o: %d, x: %d, i: %d, percentX: %d, timeHashing: %d", gfTime, inTime, iterations, gf.testsOutside, gf.testsIntersecting, gf.testsInside, gf.testsIntersecting/iterations*100, gf.timeHashing);
         expect(gfTime).to.be.below(inTime);
     });
 });
