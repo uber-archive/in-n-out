@@ -1,14 +1,14 @@
 {
   "name": "in-n-out",
+  "description": "Geofence inclusion and exclusion library",
+  "homepage": "https://github.com/uber/in-n-out",
+  "author": "Alain Rodriguez eagle5command@gmail.com",
+
   "version": "0.0.1",
   "author": "Uber Dev<dev@uber.com>",
   
   "scripts": {
     "test": "./test/tests.sh"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:uber/in-n-out.git"
   },
   "dependencies": {
   },
@@ -17,6 +17,6 @@
     "mocha": "*"
   },
   "engine": {
-    "node": "0.8.x"
+    "node": "*"
   }
 }
