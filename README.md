@@ -13,7 +13,7 @@ Using the Geofence class you can determine whether a point is inside the geofenc
 
 <pre>
 var InNOut = require('in-n-out');
-var gf = new InNOut.Geofence([[[0,0], [1,0], [1,1], [0,1], [0,0]], 100);
+var gf = new InNOut.Geofence([[0,0], [1,0], [1,1], [0,1], [0,0]], 100);
 
 gf.inside([0.5,0.5]); // true
 gf.inside([100,100]); // false
