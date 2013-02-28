@@ -4,7 +4,7 @@
   "homepage": "https://github.com/uber/in-n-out",
   "author": "Alain Rodriguez <eagle5command@gmail.com>",
 
-  "version": "0.0.1",
+  "version": "0.0.2",
   
   "scripts": {
     "test": "./test/tests.sh"
