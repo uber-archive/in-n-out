@@ -19,22 +19,22 @@ gfg.add(4, null, [bogf2]);
 
 describe('GeofencedGroup.getValid()', function() {
     it('a point far out should include 3, 4', function() {
-        expect(gfg.getValid(1000,1000)).to.deep.equal([3, 4]);
+        expect(gfg.getValidKeys(1000,1000)).to.deep.equal([3, 4]);
     });
 
     it('a point in whiteout 1 should include 1, 2, 3', function() {
-        expect(gfg.getValid([15, 15])).to.deep.equal([1, 2, 3, 4]);
+        expect(gfg.getValidKeys([15, 15])).to.deep.equal([1, 2, 3, 4]);
     });
 
     it('a point in whiteout 2 should include 2, 3', function() {
-        expect(gfg.getValid([250, 10])).to.deep.equal([1, 3, 4]);
+        expect(gfg.getValidKeys([250, 10])).to.deep.equal([1, 3, 4]);
     });
 
     it('a point in blackout 1 should include 2, 3', function() {
-        expect(gfg.getValid([25, 25])).to.deep.equal([2, 3, 4]);
+        expect(gfg.getValidKeys([25, 25])).to.deep.equal([2, 3, 4]);
     });
 
     it('a point in blackout 2 should include 2, 3', function() {
-        expect(gfg.getValid([55, 25])).to.deep.equal([2, 3]);
+        expect(gfg.getValidKeys([55, 25])).to.deep.equal([2, 3]);
     });
 });
