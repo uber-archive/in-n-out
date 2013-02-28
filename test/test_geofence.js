@@ -112,5 +112,6 @@ describe('Geofence.inside()', function() {
 
         // console.log("gf: %dms, in: %dms (points: %d, o: %d, x: %d, i: %d, percentX: %d, timeHashing: %d", gfTime, inTime, iterations, gf.testsOutside, gf.testsIntersecting, gf.testsInside, gf.testsIntersecting/iterations*100, gf.timeHashing);
         expect(gfTime).to.be.below(inTime);
+        console.log("iterations: %d, innout: %dms, pointinpolygon: %dms", iterations, gfTime, inTime);
     });
 });
