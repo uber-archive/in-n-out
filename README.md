@@ -3,6 +3,8 @@ in-n-out
 
 A library to perform point-in-geofence searches. A tiled cache is used to determine inclusion very efficiently, so the library is tailored for create once, query many times uses.
 
+Geofence.inside() should be faster than utils.pointInPolygon: iterations: 1000000, innout: 48ms, pointinpolygon: 747ms
+
 Install
 -------
 <pre>npm install in-n-out</pre>
