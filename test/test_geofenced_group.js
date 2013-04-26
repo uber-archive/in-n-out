@@ -14,7 +14,7 @@ var wogf2 = new Geofence([[200,5], [300,5], [300,100], [200,100]]); // Completel
 
 gfg.add(1, [wogf1, wogf2], [bogf1, bogf2]);
 gfg.add(2, [wogf1]);
-gfg.add(3, null, null);
+gfg.add(3, [], null);
 gfg.add(4, null, [bogf2]);
 
 describe('GeofencedGroup.getValid()', function() {
