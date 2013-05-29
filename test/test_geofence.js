@@ -23,6 +23,14 @@ describe('Geofence.inside()', function() {
             point = randomPoint(2000);
             expect(gf.inside(point)).to.equal(utils.pointInPolygon(point, polygon));
         }
+
+        // This example shows a potential bug 
+        polygon = [[-2.3876149989664555,3.379635098390281],
+            [-8.781455275197889,0.17502455545495943],
+            [-10.377099824721249,3.089788889044276]];
+        gf = new geofence(polygon, 4);
+        point = [-9.242811576841252,1.346647631356851];
+        expect(gf.inside(point)).to.equal(utils.pointInPolygon(point, polygon));
     });
 
     it('should be faster than utils.pointInPolygon', function() {
