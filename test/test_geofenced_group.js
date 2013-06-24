@@ -37,4 +37,13 @@ describe('GeofencedGroup.getValid()', function() {
     it('a point in blackout 2 should include 2, 3', function() {
         expect(gfg.getValidKeys([55, 25])).to.deep.equal([2, 3]);
     });
+
+    it('entry deletion should work', function() {
+        gfg.remove(2);
+        expect(gfg.getValidKeys([55, 25])).to.deep.equal([3]);
+
+        gfg.remove(3);
+        expect(gfg.getValidKeys([55, 25])).to.deep.equal([]);
+    });
+
 });

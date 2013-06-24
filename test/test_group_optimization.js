@@ -9,7 +9,7 @@ var PolygonSpec = function() {
     this.centerXRange = [0, 0]; 
     this.centerYRange = [0, 0]; 
     this.sidesRange = [3, 8];
-    this.radiusRange = [1, 4];
+    this.radiusRange = [0, 0];
     this.convex = true;
 };
 
@@ -23,6 +23,20 @@ var GroupSpec = function() {
     this.entries = 100;
     this.whiteGfRange = [0, 10];
     this.blackGfRange = [0, 10];
+    this.polyRadiusRange = [1, 4];
+};
+
+// Spec object to create a group corresponding to the globe
+var SparseGroupSpec = function() {
+    this.minX = -180;
+    this.minY = -90;
+    this.maxX = 180;
+    this.maxY = 90;
+    this.granularity = 20;
+    this.entries = 500;
+    this.whiteGfRange = [1, 4];
+    this.blackGfRange = [0, 4];
+    this.polyRadiusRange = [0.1, 1];
 };
 
 // Generate a random polygon with non-intersecting edges in the following way
@@ -53,12 +67,13 @@ var generateRandomPolygon = function(spec) {
 };
 
 // Generate a random geofence group
-var generateRandomGroup = function(groupSpec, polySpec) {
+var generateRandomGroup = function(groupSpec) {
 
     var gfg = new GeofencedGroup(groupSpec.granularity);
+    var polySpec = new PolygonSpec();
     polySpec.centerXRange = [groupSpec.minX, groupSpec.maxX];
     polySpec.centerYRange = [groupSpec.minY, groupSpec.maxY];
-
+    polySpec.radiusRange = groupSpec.polyRadiusRange;
     for (var i = 0; i < groupSpec.entries; i++) {
         var whites = [];
         var blacks = [];
@@ -83,12 +98,51 @@ var generateRandomGroup = function(groupSpec, polySpec) {
     return gfg;
 }
 
+var testGroupPerformance = function(group) {
+    var numUnknownTiles = 0;
+    for (var x in group.tiles) {
+        numUnknownTiles += (group.tiles[x] ? Object.keys(group.tiles[x]).length : 0);
+    }
+    console.log("Average unknown Ids per Tile " +
+        numUnknownTiles / (group.granularity * group.granularity));
+   
+    var iterations = 100000;
+    var points = [];
+    var timeFunction = function(fn, iterations) {
+        var start = Date.now();
+        for (var x = 0; x < iterations; x++) {
+            fn(x);
+        }
+        return Date.now() - start;
+    };
+
+    for (var i = 0; i < iterations; i++) {
+        var randPoint = [group.minX + Math.random() * (group.maxX - group.minX),
+            group.minY + Math.random() * (group.maxY - group.minY)];
+        points.push(randPoint);
+    }
+
+    var fastTime = timeFunction(function(i) {
+        group.getValidKeys(points[i]);
+    }, iterations);
+
+    var slowTime = timeFunction(function(i) {
+        group.getValidKeysBF(points[i]);
+    }, iterations);
+
+    expect(fastTime).to.be.below(slowTime);
+    //console.dir(group);
+    console.log("iterations: %d, AFTER optimization: %dms, BEFORE optimization: %dms",
+        iterations, fastTime, slowTime);
+
+}
+
+
 describe('GeofencedGroup.getValideKeys', function() {
     
     it('correctness of fast lookup', function() {
-        var polySpec = new PolygonSpec();
         var groupSpec = new GroupSpec();
-        var group = generateRandomGroup(groupSpec, polySpec);
+        var group = generateRandomGroup(groupSpec);
         for (var i = 0; i < 10000; i++) {
             var randPoint = [group.minX + Math.random() * (group.maxX - group.minX),
                 group.minY + Math.random() * (group.maxY - group.minY)];
@@ -98,49 +152,20 @@ describe('GeofencedGroup.getValideKeys', function() {
         }
     });
    
-    it('GeofencedGroup.performance', function() {
-
-        var polySpec = new PolygonSpec();
+    it('GeofencedGroup.performanceDenseGroup', function() {
         var groupSpec = new GroupSpec();
-
-        var group = generateRandomGroup(groupSpec, polySpec);
-
-        var numUnknownTiles = 0;
-        for (var x in group.tiles['?']) {
-            numUnknownTiles += (group.tiles['?'][x] ? Object.keys(group.tiles['?'][x]).length : 0);
-        }
-        console.log("Average unknown Ids per Tile " +
-            numUnknownTiles / (group.granularity * group.granularity));
-       
-        var iterations = 100000;
-        var points = [];
-        var timeFunction = function(fn, iterations) {
-            var start = Date.now();
-            for (var x = 0; x < iterations; x++) {
-                fn(x);
-            }
-            return Date.now() - start;
-        };
-
-        for (var i = 0; i < iterations; i++) {
-            var randPoint = [group.minX + Math.random() * (group.maxX - group.minX),
-                group.minY + Math.random() * (group.maxY - group.minY)];
-            points.push(randPoint);
-        }
-
-        var fastTime = timeFunction(function(i) {
-            group.getValidKeys(points[i]);
-        }, iterations);
-
-        var slowTime = timeFunction(function(i) {
-            group.getValidKeysBF(points[i]);
-        }, iterations);
-
-        //expect(fastTime).to.be.below(slowTime);
-        console.dir(groupSpec);
-        console.log("iterations: %d, AFTER optimization: %dms, BEFORE optimization: %dms",
-            iterations, fastTime, slowTime);
+        var group = generateRandomGroup(groupSpec);
+        console.log("Test speedup of using master grid on a group of dense regions");
+        testGroupPerformance(group);
     }); 
+ 
+    it('GeofencedGroup.performanceSparseGroup', function() {
+        var groupSpec = new SparseGroupSpec();
+        var group = generateRandomGroup(groupSpec);
+        console.log("Test speedup of using master grid on a group of sparse regions");
+        testGroupPerformance(group);
+    }); 
+   
        
 });
 
