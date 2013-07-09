@@ -1,4 +1,4 @@
-in-n-out [![Build Status](https://travis-ci.org/uber/in-n-out.png?branch=master)](https://travis-ci.org/uber/in-n-out)
+in-n-out [![NPM version](https://badge.fury.io/js/in-n-out.png)](http://badge.fury.io/js/in-n-out) [![Dependency Status](https://gemnasium.com/uber/in-n-out.png)](https://gemnasium.com/uber/in-n-out) [![Build Status](https://travis-ci.org/uber/in-n-out.png?branch=master)](https://travis-ci.org/uber/in-n-out)
 ========
 
 A library to perform point-in-geofence searches. A tiled cache is used to determine inclusion very efficiently, so the library is tailored for create once, query many times uses.
