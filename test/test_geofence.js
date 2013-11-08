@@ -2,7 +2,7 @@
 var expect = require('chai').expect;
 
 var utils = require('../lib/utils');
-var geofence = require('../lib/geofence');
+var Geofence = require('../lib/geofence');
 
 var randomPoint = function(range) { return [Math.random()*range - range/2, Math.random()*range - range/2]; };
 var randomPolygon = function(range, percentageOfRange) {
@@ -17,7 +17,7 @@ var randomPolygon = function(range, percentageOfRange) {
 describe('Geofence.inside()', function() {
     it('should always equal utils.pointInPolygon', function() {
         var polygon = randomPolygon(2000, 0.1);
-        var gf = new geofence(polygon);
+        var gf = new Geofence(polygon);
         var point = null;
         for (var x = 0; x < 1000; x++) {
             point = randomPoint(2000);
@@ -86,7 +86,7 @@ describe('Geofence.inside()', function() {
             ];
         };
 
-        var gf = new geofence(polygon);
+        var gf = new Geofence(polygon);
         var point = null;
 
         var timeFunction = function(fn, iterations) {
@@ -113,5 +113,104 @@ describe('Geofence.inside()', function() {
         // console.log("gf: %dms, in: %dms (points: %d, o: %d, x: %d, i: %d, percentX: %d, timeHashing: %d", gfTime, inTime, iterations, gf.testsOutside, gf.testsIntersecting, gf.testsInside, gf.testsIntersecting/iterations*100, gf.timeHashing);
         expect(gfTime).to.be.below(inTime);
         console.log("iterations: %d, innout: %dms, pointinpolygon: %dms", iterations, gfTime, inTime);
+    });
+});
+
+describe('Complex polygons', function() {
+    describe('with a single outer ring', function() {
+        it('behaves the same as pointInPolygon', function() {
+            var polygon = randomPolygon(2000, 0.1);
+            var geofence = new Geofence([polygon]);
+            var point = randomPoint(2000);
+            expect(geofence.inside(point)).to.equal(utils.pointInPolygon(point, polygon));
+        });
+    });
+
+    describe('with a single inner ring', function() {
+        // San Francisco peninsula
+        var polygon = [
+             [-122.19581253,  37.365653004],
+             [-122.49420166,  37.6447143555],
+             [-122.513364651, 37.6988438412],
+             [-122.355320255, 37.709494697],
+             [-122.355879585, 37.6928869743],
+             [-122.076452319, 37.4641785837],
+             [-122.19581253,  37.365653004]
+        ];
+        var hole = [
+            [-122.404894594, 37.6388752809],
+            [-122.397411728, 37.6128435367],
+            [-122.379888562, 37.601737887],
+            [-122.336601607, 37.6116430059],
+            [-122.366248909, 37.645475542],
+            [-122.404894594, 37.6388752809]
+        ];
+        var donutGeofence = new Geofence([polygon, hole]);
+
+        it('should return true for points outside the hole', function() {
+            var sanMateo = [-122.3131, 37.5542];
+            expect(donutGeofence.inside(sanMateo)).to.equal(true);
+        });
+
+        it('should return false for points inside the hole', function() {
+            var airportPoint = [-122.3750, 37.6189];
+            expect(donutGeofence.inside(airportPoint)).to.equal(false);
+        });
+
+        it('should compute the same as pointInPolygon', function() {
+            var minLatitude = -122.513;
+            var maxLatitude = -122.076;
+            var latitudeDelta = maxLatitude - minLatitude;
+            var minLongitude = 37.365;
+            var maxLongitude = 37.709;
+            var longitudeDelta = maxLongitude - minLongitude;
+
+            for (var i = 0; i < 100; i++) {
+                var latitude = minLatitude + Math.random() * latitudeDelta;
+                var longitude = minLongitude + Math.random() * longitudeDelta;
+                var point = [latitude, longitude];
+
+                var insideBounds = utils.pointInPolygon(point, polygon);
+                if (insideBounds) {
+                    expect(donutGeofence.inside(point)).to.equal(!utils.pointInPolygon(point, hole));
+                } else {
+                    expect(donutGeofence.inside(point)).to.equal(insideBounds);
+                }
+            }
+        });
+    });
+
+    describe('with two inner rings', function() {
+        var bounds = [
+            [-5, -5],
+            [-5,  5],
+            [5,   5],
+            [5,  -5]
+        ];
+        var firstRing = [
+            [3, 3],
+            [3, 4],
+            [4, 4],
+            [4, 3]
+        ];
+        var secondRing = [
+            [-2, -2],
+            [-2, -1],
+            [-1, -1],
+            [-1, -2]
+        ];
+        var twoHoleGeofence = new Geofence([bounds, firstRing, secondRing]);
+
+        it('respects the first ring', function() {
+            expect(twoHoleGeofence.inside([3.5, 3.5])).to.equal(false);
+        });
+
+        it('respects the second ring', function() {
+            expect(twoHoleGeofence.inside([-1.5, -1.5])).to.equal(false);
+        });
+
+        it('correctly identifies points outside both rings', function() {
+            expect(twoHoleGeofence.inside([0, 0])).to.equal(true);
+        });
     });
 });

@@ -7,9 +7,12 @@
     "url": "git@github.com:uber/in-n-out.git"
   },
   "author": "Alain Rodriguez <eagle5command@gmail.com>",
+  "contributors": [
+    "Aiden Scandella <sc@ndella.com>"
+  ],
 
-  "version": "0.0.7",
-  
+  "version": "0.0.8",
+
   "scripts": {
     "test": "./test/tests.sh"
   },
