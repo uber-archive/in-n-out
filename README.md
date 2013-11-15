@@ -21,6 +21,11 @@ gf.inside([0.5,0.5]); // true
 gf.inside([100,100]); // false
 ```
 
+Just like GeoJSON supports [interior rings](http://www.geojson.org/geojson-spec.html#polygon)
+for polygons, the ``Geofence`` class may also be passed multiple sets of
+vertices. If you do, the first set is taken to be the exterior ring, and all
+subsequent sets are taken as interior rings ("holes").
+
 The geofence's bbox will be broken down into a granularity x granylarity grid, defaulting to 20x20.
 
 GeofencedGroup(id, whiteoutGfs[], blackoutGfs[])
