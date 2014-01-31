@@ -194,10 +194,10 @@ describe('Complex polygons', function() {
             [4, 3]
         ];
         var secondRing = [
-            [-2, -2],
-            [-2, -1],
-            [-1, -1],
-            [-1, -2]
+            [-4, -4],
+            [-4, 2],
+            [2, 2],
+            [2, -4]
         ];
         var twoHoleGeofence = new Geofence([bounds, firstRing, secondRing]);
 
@@ -206,11 +206,11 @@ describe('Complex polygons', function() {
         });
 
         it('respects the second ring', function() {
-            expect(twoHoleGeofence.inside([-1.5, -1.5])).to.equal(false);
+            expect(twoHoleGeofence.inside([0, 0])).to.equal(false);
         });
 
         it('correctly identifies points outside both rings', function() {
-            expect(twoHoleGeofence.inside([0, 0])).to.equal(true);
+            expect(twoHoleGeofence.inside([2.5, 2.5])).to.equal(true);
         });
     });
 });
