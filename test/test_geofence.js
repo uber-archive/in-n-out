@@ -129,13 +129,13 @@ describe('Complex polygons', function() {
     describe('with a single inner ring', function() {
         // San Francisco peninsula
         var polygon = [
-             [-122.19581253,  37.365653004],
-             [-122.49420166,  37.6447143555],
-             [-122.513364651, 37.6988438412],
-             [-122.355320255, 37.709494697],
-             [-122.355879585, 37.6928869743],
-             [-122.076452319, 37.4641785837],
-             [-122.19581253,  37.365653004]
+            [-122.19581253,  37.365653004],
+            [-122.49420166,  37.6447143555],
+            [-122.513364651, 37.6988438412],
+            [-122.355320255, 37.709494697],
+            [-122.355879585, 37.6928869743],
+            [-122.076452319, 37.4641785837],
+            [-122.19581253,  37.365653004]
         ];
         var hole = [
             [-122.404894594, 37.6388752809],
@@ -211,6 +211,125 @@ describe('Complex polygons', function() {
 
         it('correctly identifies points outside both rings', function() {
             expect(twoHoleGeofence.inside([2.5, 2.5])).to.equal(true);
+        });
+    });
+
+    describe('saving and loading', function() {
+        var bounds = [
+            [-5, -5],
+            [-5, 5],
+            [5, 5],
+            [5, -5]
+        ];
+
+        var originalGeofence = new Geofence(bounds);
+
+        it('saves into an expected object', function() {
+            var fullObj = originalGeofence.save();
+            expect(fullObj.version).to.equal(originalGeofence.version);
+            expect(fullObj.vertices).to.equal(originalGeofence.vertices);
+            expect(fullObj.holes).to.equal(originalGeofence.holes);
+            expect(fullObj.granularity).to.equal(originalGeofence.granularity);
+            expect(fullObj.minX).to.equal(originalGeofence.minX);
+            expect(fullObj.maxX).to.equal(originalGeofence.maxX);
+            expect(fullObj.minY).to.equal(originalGeofence.minY);
+            expect(fullObj.maxY).to.equal(originalGeofence.maxY);
+            expect(fullObj.tileWidth).to.equal(originalGeofence.tileWidth);
+            expect(fullObj.tileHeight).to.equal(originalGeofence.tileHeight);
+            expect(fullObj.minTileX).to.equal(originalGeofence.minTileX);
+            expect(fullObj.maxTileX).to.equal(originalGeofence.maxTileX);
+            expect(fullObj.minTileY).to.equal(originalGeofence.minTileY);
+            expect(fullObj.maxTileY).to.equal(originalGeofence.maxTileY);
+            expect(fullObj.tiles).to.equal(originalGeofence.tiles);
+        });
+
+        it('loads back into the same object', function() {
+            var fullObj = originalGeofence.save();
+            var secondGeofence = Geofence.load(fullObj);
+            expect(fullObj.version).to.equal(secondGeofence.version);
+            expect(fullObj.vertices).to.equal(secondGeofence.vertices);
+            expect(fullObj.holes).to.equal(secondGeofence.holes);
+            expect(fullObj.granularity).to.equal(secondGeofence.granularity);
+            expect(fullObj.minX).to.equal(secondGeofence.minX);
+            expect(fullObj.maxX).to.equal(secondGeofence.maxX);
+            expect(fullObj.minY).to.equal(secondGeofence.minY);
+            expect(fullObj.maxY).to.equal(secondGeofence.maxY);
+            expect(fullObj.tileWidth).to.equal(secondGeofence.tileWidth);
+            expect(fullObj.tileHeight).to.equal(secondGeofence.tileHeight);
+            expect(fullObj.minTileX).to.equal(secondGeofence.minTileX);
+            expect(fullObj.maxTileX).to.equal(secondGeofence.maxTileX);
+            expect(fullObj.minTileY).to.equal(secondGeofence.minTileY);
+            expect(fullObj.maxTileY).to.equal(secondGeofence.maxTileY);
+            expect(fullObj.tiles).to.equal(secondGeofence.tiles);
+        });
+
+        it('saves minimal objects as expected', function() {
+            var smallObj = originalGeofence.save(false);
+            expect(smallObj.version).to.equal(originalGeofence.version);
+            expect(smallObj.vertices).to.equal(originalGeofence.vertices);
+            expect(smallObj.holes).to.equal(originalGeofence.holes);
+            expect(smallObj.granularity).to.equal(originalGeofence.granularity);
+        });
+
+        it('loads minimal objects as expected', function() {
+            var smallObj = originalGeofence.save(false);
+            var secondGeofence = Geofence.load(smallObj);
+            expect(smallObj.version).to.equal(secondGeofence.version);
+            expect(smallObj.vertices).to.equal(secondGeofence.vertices);
+            expect(smallObj.holes).to.equal(secondGeofence.holes);
+            expect(smallObj.granularity).to.equal(secondGeofence.granularity);
+            expect(originalGeofence.minX).to.equal(secondGeofence.minX);
+            expect(originalGeofence.maxX).to.equal(secondGeofence.maxX);
+            expect(originalGeofence.minY).to.equal(secondGeofence.minY);
+            expect(originalGeofence.maxY).to.equal(secondGeofence.maxY);
+            expect(originalGeofence.tileWidth).to.equal(secondGeofence.tileWidth);
+            expect(originalGeofence.tileHeight).to.equal(secondGeofence.tileHeight);
+            expect(originalGeofence.minTileX).to.equal(secondGeofence.minTileX);
+            expect(originalGeofence.maxTileX).to.equal(secondGeofence.maxTileX);
+            expect(originalGeofence.minTileY).to.equal(secondGeofence.minTileY);
+            expect(originalGeofence.maxTileY).to.equal(secondGeofence.maxTileY);
+            expect(JSON.stringify(originalGeofence.tiles)).to.equal(JSON.stringify(secondGeofence.tiles));
+        });
+
+        it('should produce equal lookup results before and after serialization and deserialization', function() {
+            var fullObj = originalGeofence.save();
+            var secondGeofence = Geofence.load(fullObj);
+            expect(originalGeofence.inside([1, 1])).to.equal(secondGeofence.inside([1, 1]));
+            expect(originalGeofence.inside([6, 6])).to.equal(secondGeofence.inside([6, 6]));
+        });
+
+        it('should generate a valid object even if the version is off as long as the object quacks like a duck', function() {
+            var fullObj = originalGeofence.save();
+            delete fullObj.tiles;
+            fullObj.version = '999.99.9';
+            var secondGeofence = Geofence.load(fullObj);
+            expect(originalGeofence.inside([1, 1])).to.equal(secondGeofence.inside([1, 1]));
+            expect(originalGeofence.inside([6, 6])).to.equal(secondGeofence.inside([6, 6]));
+        });
+
+        it('should generate a valid object even if the version is off with holes, too', function() {
+            var hole = [
+                [-1, -1],
+                [1, -1],
+                [0, 1]
+            ];
+            var holeyGeofenceBatman = new Geofence([bounds, hole]);
+            var fullObj = holeyGeofenceBatman.save();
+            delete fullObj.tiles;
+            fullObj.version = '999.99.9';
+            var holeyMoleyGeofences = Geofence.load(fullObj);
+            expect(holeyGeofenceBatman.inside([0, 0])).to.equal(holeyMoleyGeofences.inside([0, 0]));
+            expect(holeyGeofenceBatman.inside([3, 3])).to.equal(holeyMoleyGeofences.inside([3, 3]));
+            expect(holeyGeofenceBatman.inside([6, 6])).to.equal(holeyMoleyGeofences.inside([6, 6]));
+        });
+
+        it('should throw an error if the serialized object is too different from the expected format', function() {
+            var json = { lol: 'json', version: 'blah' };
+            try {
+                Geofence.load(json);
+            } catch(e) {
+                expect(e.message).to.equal('Serialized Geofence at version blah wildly different from current version ' + originalGeofence.version);
+            }
         });
     });
 });
