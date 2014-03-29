@@ -114,6 +114,41 @@ describe('Geofence.inside()', function() {
         expect(gfTime).to.be.below(inTime);
         console.log("iterations: %d, innout: %dms, pointinpolygon: %dms", iterations, gfTime, inTime);
     });
+
+    describe('event emission', function() {
+
+        var polygon = [
+            [0, 0],
+            [5, 0],
+            [5, 5],
+            [0, 5]
+        ];
+        var geofence = new Geofence(polygon);
+
+        it('should emit "inside" for a point fully inside of the polygon', function(done) {
+            geofence.on('inside', function(point) {
+                expect(point.toString()).to.equal([2, 2].toString());
+                done();
+            });
+            geofence.inside([2, 2]);
+        });
+
+        it('should emit "outside" for a point fully outside of the polygon', function(done) {
+            geofence.on('outside', function(point) {
+                expect(point.toString()).to.equal([6, 6].toString());
+                done();
+            });
+            geofence.inside([6, 6]);
+        });
+
+        it('should emit "intersection" for a point on the edge of the polygon', function(done) {
+            geofence.on('intersection', function(point) {
+                expect(point.toString()).to.equal([5, 5].toString());
+                done();
+            });
+            geofence.inside([5, 5]);
+        });
+    });
 });
 
 describe('Complex polygons', function() {
