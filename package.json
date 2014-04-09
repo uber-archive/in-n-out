@@ -11,7 +11,7 @@
     "Aiden Scandella <sc@ndella.com>",
     "David Ellis <d.f.ellis@ieee.org>"
   ],
-  "version": "0.0.11",
+  "version": "0.0.12",
   "scripts": {
     "test": "./test/tests.sh"
   },
