@@ -19,15 +19,15 @@ describe('GeofenceCache', function() {
     });
 
     it('produces the same object for the same input', function() {
-        var gf1 = cache.buildGeo([[10,10], [100,10], [100,50], [10,50]]);
-        var gf2 = cache.buildGeo([[10,10], [100,10], [100,50], [10,50]]);
+        var gf1 = cache.getGeo([[10,10], [100,10], [100,50], [10,50]]);
+        var gf2 = cache.getGeo([[10,10], [100,10], [100,50], [10,50]]);
 
         expect(gf1).to.equal(gf2);
     });
 
     it('produces different objects for different inputs', function() {
-        var gf1 = cache.buildGeo([[10,10], [100,10], [100,50], [10,50]]);
-        var gf2 = cache.buildGeo([[20,20], [40,20], [40,30], [20,30]]);
+        var gf1 = cache.getGeo([[10,10], [100,10], [100,50], [10,50]]);
+        var gf2 = cache.getGeo([[20,20], [40,20], [40,30], [20,30]]);
 
         expect(gf1).to.not.equal(gf2);
     });
