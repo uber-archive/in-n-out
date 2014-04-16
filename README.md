@@ -54,6 +54,15 @@ The inclusion logic is as follows:
 
 Passing null for the geofence arrays is the same as ``[]``.
 
+GeofenceCache
+-------------
+This provides a relatively primitive caching mechanism which allows you to bypass tile creation for identical geofences.  It's basically a drop-in replacement for `new Geofence()`.  It keeps all geofences around so if you use many of them you'll run out of memory.
+
+```js
+var geofenceCache = new GeofenceCache();
+var geo = geofenceCache.getGeo([[0,0], [1,0], [1,1], [0,1], [0,0]];
+```
+
 License (MIT)
 -------------
 Copyright (C) 2013 by Uber Technologies, Inc.
